@@ -16,3 +16,10 @@ Tags:
 * The character set
   * BASE Assuming ASCII symbols only
   * BRANCH Unicode strings
+
+#### 1.2 Check Permutations
+
+* Are whitespace chars significant
+  * BASE YES
+* Is algorithm case sensitive
+  * BASE YES
