@@ -1,4 +1,4 @@
-/// # Palindrome Permutation
+/// # 1.4 Palindrome Permutation
 
 /// ## Using an array of char counts and finding is it more than one odd count
 /// Assumptions:

@@ -1,4 +1,4 @@
-/// # Is Unique
+/// # 1.1 Is Unique
 ///
 /// ## Assumptions:
 ///

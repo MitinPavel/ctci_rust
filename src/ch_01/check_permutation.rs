@@ -1,4 +1,4 @@
-/// # Check Permutations
+/// # 1.2 Check Permutations
 
 // TODO
 // * [Rust] Enhance/extend `String` struct
