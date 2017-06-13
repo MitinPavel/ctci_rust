@@ -33,7 +33,7 @@ pub fn rotate_matrix(m: &mut Vec<Vec<u16>>) -> bool {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     #[test]
     fn check_rotate_matrix_1_1() {
         let mut actual = vec![

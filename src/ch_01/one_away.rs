@@ -98,7 +98,7 @@ mod single_method {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     fn test_one_away<F>(test: F) where F: Fn(String, String) -> bool {
         assert_eq!(true, test("a".to_string(), "b".to_string()));
         assert_eq!(true, test("ab".to_string(), "ac".to_string()));

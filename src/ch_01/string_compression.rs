@@ -34,7 +34,7 @@ fn compress(string: String) -> String {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     #[test]
     fn it_tests_compress() {
         assert_eq!("a2b1c5a3".to_string(), super::compress("aabcccccaaa".to_string()));

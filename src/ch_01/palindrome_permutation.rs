@@ -105,7 +105,7 @@ mod bit_vector {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     fn test_palindrome_permutation<F>(test: F) where F: Fn(String) -> bool {
         // true for a, b, c
         assert_eq!(true, test("".to_string()));

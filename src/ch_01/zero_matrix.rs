@@ -114,7 +114,7 @@ mod first_col_and_row_optimization {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     fn check_set_zeros_3_3<F>(test: F) where F: Fn(&mut Vec<Vec<u8>>) -> () {
         let mut actual = vec![
             vec![1, 2, 3],
