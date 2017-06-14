@@ -1,6 +1,6 @@
 /// # 1.8 Zero Matrix
 
-mod optimizing_col_iteration {
+mod optimizing_col_iteration_1 {
     pub fn set_zeros(m: &mut Vec<Vec<u8>>) {
         let mut untouched_cols: Vec<usize> = (0..m[0].len()).collect();
         let mut untouched_rows: Vec<usize> = vec![];
@@ -26,7 +26,8 @@ mod optimizing_col_iteration {
         }
 
         for row in zero_rows {
-            //OPTIMIZE: Check if `m[row] = vec![0; m[row].len()]` performs better.
+            // `m[row] = vec![0; m[row].len()]` doesn't perform better
+            // according to benchmarks on matrices 300x300
             for col in 0..m[row].len() {
                 m[row][col] = 0;
             }
@@ -42,73 +43,41 @@ mod optimizing_col_iteration {
     }
 }
 
-// The solution was rigorously translated
-// from the book second solution (as close as possible to the original pseudocode).
-mod first_col_and_row_optimization {
+mod optimizing_col_iteration_2 {
     pub fn set_zeros(m: &mut Vec<Vec<u8>>) {
-        let mut first_row_has_zero = false;
-        let mut first_col_has_zero = false;
+        let mut untouched_cols: Vec<usize> = (0..m[0].len()).collect();
+        let mut untouched_rows: Vec<usize> = vec![];
+        let mut zero_rows: Vec<usize> = vec![];
 
-        // Check if the first row has a zero.
-        for j in 0..m[0].len() {
-            if m[0][j] == 0 {
-                first_row_has_zero = true;
-                break
+        for row in 0..m.len() {
+            let mut zero_row = false;
+
+            untouched_cols.retain(|col| {
+                if m[row][*col] == 0 {
+                    zero_row = true;
+                    false
+                } else {
+                    true
+                }
+            });
+
+            if zero_row {
+                zero_rows.push(row)
+            } else {
+                untouched_rows.push(row)
             }
         }
 
-        // Check if the first column has a zero
-        for i in 0..m.len() {
-            if m[i][0] == 0 {
-                first_col_has_zero = true;
-                break
-            }
+        for row in zero_rows {
+            m[row] = vec![0; m[row].len()];
         }
 
-        // Check for zeros in the rest of the matrix
-        for i in 1..m.len() {
-            for j in 1..m[0].len() {
-                if m[i][j] == 0 {
-                    m[i][0] = 0;
-                    m[0][j] = 0;
+        for row in untouched_rows {
+            for col in 0..m[row].len() {
+                if !untouched_cols.contains(&col) {
+                    m[row][col] = 0;
                 }
             }
-        }
-
-        // Nullify rows based on values in first column
-        for i in 1..m.len() {
-            if m[i][0] == 0 {
-                nullify_row(m, i)
-            }
-        }
-
-        // Nullify columns based on values in first row
-        for j in 1..m[0].len() {
-            if m[0][j] == 0 {
-                nullify_column(m, j);
-            }
-        }
-
-        // Nullify the first row
-        if first_row_has_zero {
-            nullify_row(m, 0)
-        }
-
-        // Nullify the first column
-        if first_col_has_zero {
-            nullify_column(m, 0);
-        }
-    }
-
-    fn nullify_row(matrix: &mut Vec<Vec<u8>>, row: usize) {
-        for j in 0..matrix[0].len() {
-            matrix[row][j] = 0
-        }
-    }
-
-    fn nullify_column(matrix: &mut Vec<Vec<u8>>, col: usize) {
-        for i in 0..matrix.len() {
-            matrix[i][col] = 0
         }
     }
 }
@@ -230,20 +199,68 @@ mod tests {
     }
 
     #[test]
-    fn check_optimizing_col_iteration() {
-        check_set_zeros_3_3(super::optimizing_col_iteration::set_zeros);
-        check_set_zeros_2_3(super::optimizing_col_iteration::set_zeros);
-        check_set_zeros_2_2(super::optimizing_col_iteration::set_zeros);
-        check_set_zeros_1_1_zero(super::optimizing_col_iteration::set_zeros);
-        check_set_zeros_1_1_one(super::optimizing_col_iteration::set_zeros);
+    fn check_optimizing_col_iteration_1() {
+        check_set_zeros_3_3(super::optimizing_col_iteration_1::set_zeros);
+        check_set_zeros_2_3(super::optimizing_col_iteration_1::set_zeros);
+        check_set_zeros_2_2(super::optimizing_col_iteration_1::set_zeros);
+        check_set_zeros_1_1_zero(super::optimizing_col_iteration_1::set_zeros);
+        check_set_zeros_1_1_one(super::optimizing_col_iteration_1::set_zeros);
     }
 
     #[test]
-    fn check_first_col_and_row_optimization() {
-        check_set_zeros_3_3(super::first_col_and_row_optimization::set_zeros);
-        check_set_zeros_2_3(super::first_col_and_row_optimization::set_zeros);
-        check_set_zeros_2_2(super::first_col_and_row_optimization::set_zeros);
-        check_set_zeros_1_1_zero(super::first_col_and_row_optimization::set_zeros);
-        check_set_zeros_1_1_one(super::first_col_and_row_optimization::set_zeros);
+    fn check_optimizing_col_iteration_2() {
+        check_set_zeros_3_3(super::optimizing_col_iteration_2::set_zeros);
+        check_set_zeros_2_3(super::optimizing_col_iteration_2::set_zeros);
+        check_set_zeros_2_2(super::optimizing_col_iteration_2::set_zeros);
+        check_set_zeros_1_1_zero(super::optimizing_col_iteration_2::set_zeros);
+        check_set_zeros_1_1_one(super::optimizing_col_iteration_2::set_zeros);
+    }
+ 
+}
+
+#[cfg(test)]
+mod benchmark_tests {
+    use test::Bencher;
+
+    static MAX_SIZE: usize = 300;
+
+    #[bench]
+    fn bench_optimizing_col_iteration_1(b: &mut Bencher) {
+        b.iter(|| {
+            let mut matrices: Vec<Vec<Vec<u8>>> = build_matrices(MAX_SIZE);
+
+            for i in 0..matrices.len() {
+                super::optimizing_col_iteration_1::set_zeros(&mut matrices[i])
+            }
+
+        });
+    }
+
+    #[bench]
+    fn bench_optimizing_col_iteration_2(b: &mut Bencher) {
+        b.iter(|| {
+            let mut matrices: Vec<Vec<Vec<u8>>> = build_matrices(MAX_SIZE);
+
+            for i in 0..matrices.len() {
+                super::optimizing_col_iteration_2::set_zeros(&mut matrices[i])
+            }
+
+        });
+    }
+
+    fn build_matrices(count: usize) -> Vec<Vec<Vec<u8>>> {
+        let mut result: Vec<Vec<Vec<u8>>> = vec![];
+
+        for n in 0..count {
+            result.push(vec![vec![0; n + 1]; n + 1]);
+
+            for i in 0..n + 1 {
+                for j in 0..n + 1 {
+                    result[n][i][j] = ((n + i + j) % 3) as u8;
+                }
+            }
+        }
+
+        result
     }
 }
