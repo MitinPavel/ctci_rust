@@ -6,3 +6,4 @@ mod one_away; // Question 1.5
 mod string_compression; // Question 1.6
 mod rotate_matrix; // Question 1.7
 mod zero_matrix; // Question 1.8
+mod string_rotation; // Question 1.9
