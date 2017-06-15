@@ -1,3 +1,12 @@
+# Cracking the Coding Interview in Rust
+
+Rust solutions for "Cracking the Coding Interview" (6th edition).
+
+Disclaimer: this repository does not contain an idiomatic Rust code. Assuming coding interview goals:
+* it often doesn't use standard library functions and third party traits
+* it prefers more imperative code style
+* it prefers mutability
+
 ## Auxiliary aspects of interview questions
 
 Tags:
